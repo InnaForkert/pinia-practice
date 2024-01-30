@@ -1,14 +1,11 @@
 <script lang="ts" setup>
-import { PropType, defineProps } from "vue";
+import { defineProps } from "vue";
 import Task from "../types/Task";
 import { useTaskStore } from "../stores/TaskStore";
 
-const props = defineProps({
- task: {
-  required: true,
-  type: Object as PropType<Task>,
- },
-});
+const props = defineProps<{
+ task: Task;
+}>();
 
 const taskStore = useTaskStore();
 </script>
