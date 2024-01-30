@@ -1,30 +1,67 @@
-<script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
+<script lang="ts" setup>
+import { ref, onMounted } from "vue";
+import { useTaskStore } from "./stores/TaskStore";
+import TaskDetails from "./components/TaskDetails.vue";
+import TaskForm from "./components/TaskForm.vue";
+import { storeToRefs } from "pinia";
+
+const taskStore = useTaskStore();
+
+const filter = ref("all");
+
+const { tasks, loading, favs, favCount, totalCount, name } =
+ storeToRefs(taskStore);
+
+onMounted(() => {
+ taskStore.getTasks();
+});
 </script>
 
 <template>
-  <div>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
+ <main>
+  <header>
+   <img src="./assets/logo.png" alt="Pinia logo - a smiling pineapple" />
+   <h1>{{ name }}</h1>
+  </header>
+
+  <div class="new-task-form">
+   <TaskForm />
   </div>
-  <HelloWorld msg="Vite + Vue" />
+
+  <nav class="filter">
+   <button @click="filter = 'all'">All tasks</button>
+   <button @click="filter = 'fav'">Fav tasks</button>
+  </nav>
+
+  <div class="loading" v-if="loading">Loading tasks...</div>
+
+  <div class="task-list" v-if="filter === 'all'">
+   <p>all tasks</p>
+   <p>
+    You have {{ totalCount }} task{{
+     totalCount.toString().endsWith("1") ? "" : "s"
+    }}
+    to do
+   </p>
+   <div v-for="task in tasks" :key="task.id">
+    <TaskDetails :task="task" />
+   </div>
+  </div>
+  <div class="task-list" v-else>
+   <p>fav tasks</p>
+   <p>
+    You have {{ favCount }} fav{{
+     favCount.toString().endsWith("1") ? "" : "s"
+    }}
+    to do
+   </p>
+   <div v-for="task in favs" :key="task.id">
+    <TaskDetails :task="task" />
+   </div>
+  </div>
+
+  <button @click="taskStore.$reset">reset</button>
+ </main>
 </template>
 
-<style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
-}
-</style>
+<style lang="css" scoped></style>
